@@ -14,8 +14,7 @@ interface ShopRepositoryTest {
 
     @Test
     default void persistAndFind() {
-        Shop shop = new Shop(UUID.randomUUID(), "name");
-        shop.addUser(UUID.randomUUID());
+        Shop shop = new Shop(UUID.randomUUID(), "name").addUser(UUID.randomUUID());
         ShopRepository repository = getRepository();
         repository.persist(shop);
 

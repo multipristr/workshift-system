@@ -40,18 +40,12 @@ interface ShiftRepositoryTest {
         Instant timestamp6 = timestamp5.plusSeconds(50);
         UUID userId = UUID.randomUUID();
 
-        Shift shift1 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp1, timestamp2);
-        shift1.addUser(userId);
-        Shift shift2 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp2, timestamp3);
-        shift2.addUser(userId);
-        Shift shift3 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4);
-        shift3.addUser(userId);
-        Shift shift4 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp4, timestamp5);
-        shift4.addUser(userId);
-        Shift shift5 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp5, timestamp6);
-        shift5.addUser(userId);
-        Shift shift6 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4);
-        shift6.addUser(UUID.randomUUID());
+        Shift shift1 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp1, timestamp2).addUser(userId);
+        Shift shift2 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp2, timestamp3).addUser(userId);
+        Shift shift3 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4).addUser(userId);
+        Shift shift4 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp4, timestamp5).addUser(userId);
+        Shift shift5 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp5, timestamp6).addUser(userId);
+        Shift shift6 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4).addUser(UUID.randomUUID());
 
         ShiftRepository repository = getRepository();
         repository.persist(shift1);

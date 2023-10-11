@@ -10,12 +10,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ShiftService {
@@ -44,23 +49,25 @@ public class ShiftService {
             throw new MissingEntityException("No shift with id " + shiftId);
         }
         Shift shift = found.get();
-        Instant fiveDaysAgo = shift.getTo().minus(5, ChronoUnit.DAYS);
-        Collection<Shift> userShiftsInFiveDays = repository.findUserShiftsBetween(userId, fiveDaysAgo, shift.getTo());
+
+        Instant firstMoment5DaysAgo = shift.getTo().minus(5, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        Instant shiftLastMoment = shift.getTo().atOffset(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+        List<Shift> userShiftsInFiveDays = repository.findUserShiftsBetween(userId, firstMoment5DaysAgo, shiftLastMoment);
 
         // No user can work more than 5 days in a row in the same shop
-        long daysWorkedInShopIn5Days = userShiftsInFiveDays.stream()
-                .filter(oldShift -> oldShift.getShopId().equals(shift.getShopId()))
+        Set<LocalDate> daysWorkedInShopIn5Days = userShiftsInFiveDays.stream()
                 .map(oldShift -> Arrays.asList(oldShift.getFrom().atZone(ZoneOffset.UTC).toLocalDate(), oldShift.getTo().atZone(ZoneOffset.UTC).toLocalDate()))
                 .flatMap(Collection::stream)
-                .distinct()
-                .count();
-        if (daysWorkedInShopIn5Days >= MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS) {
+                .collect(Collectors.toSet());
+        daysWorkedInShopIn5Days.add(shift.getFrom().atZone(ZoneOffset.UTC).toLocalDate());
+        daysWorkedInShopIn5Days.add(shift.getTo().atZone(ZoneOffset.UTC).toLocalDate());
+        if (daysWorkedInShopIn5Days.size() > MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
-                    "' because the user has already worked in that shop in " + daysWorkedInShopIn5Days +
+                    "' because the user has already worked in that shop in " + daysWorkedInShopIn5Days.size() +
                     " days during the past 5 days. At most " + MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS + " days are allowed.");
         }
 
-        // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window.
+        // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
         Instant twentyFourHoursBefore = shift.getTo().minus(24, ChronoUnit.HOURS);
         long millisecondsWorkedInShopIn24Hours = userShiftsInFiveDays.stream()
                 .filter(oldShift -> oldShift.getShopId().equals(shift.getShopId()))
