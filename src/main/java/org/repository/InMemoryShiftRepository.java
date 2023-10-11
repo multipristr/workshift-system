@@ -2,9 +2,9 @@ package org.repository;
 
 import org.model.Shift;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InMemoryShiftRepository implements ShiftRepository {
@@ -16,7 +16,8 @@ public class InMemoryShiftRepository implements ShiftRepository {
     }
 
     @Override
-    public Collection<Shift> findAll() {
-        return table.values();
+    public Optional<Shift> find(UUID shopId) {
+        return Optional.ofNullable(table.get(shopId));
     }
+
 }

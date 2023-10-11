@@ -1,6 +1,6 @@
 package org.controller;
 
-import org.exception.LogicValidationException;
+import org.exception.LogicalValidationException;
 import org.exception.MissingEntityException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {LogicValidationException.class})
-    protected ResponseEntity<Object> handleLogicValidation(LogicValidationException ex, WebRequest request) {
+    @ExceptionHandler(value = {LogicalValidationException.class})
+    protected ResponseEntity<Object> handleLogicValidation(LogicalValidationException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 

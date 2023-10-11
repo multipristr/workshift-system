@@ -1,27 +1,16 @@
 package org.repository;
 
+import org.exception.MissingEntityException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.model.Shop;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
 interface ShopRepositoryTest {
 
     ShopRepository getRepository();
-
-    @Test
-    default void persistAndFindAll() {
-        Shop shop = new Shop(UUID.randomUUID(), "name");
-        shop.addUser(UUID.randomUUID());
-        ShopRepository repository = getRepository();
-        repository.persist(shop);
-        Collection<Shop> found = repository.findAll();
-        Assertions.assertEquals(1, found.size());
-        Assertions.assertEquals(shop, found.iterator().next());
-    }
 
     @Test
     default void persistAndFind() {
@@ -42,8 +31,21 @@ interface ShopRepositoryTest {
     }
 
     @Test
-    default void findAll_Empty() {
-        Collection<Shop> found = getRepository().findAll();
-        Assertions.assertTrue(found.isEmpty());
+    default void addUser() {
+        Shop shop = new Shop(UUID.randomUUID(), "name");
+        UUID userId = UUID.randomUUID();
+        ShopRepository repository = getRepository();
+        repository.persist(shop);
+
+        repository.addUser(shop.getId(), userId);
+        Optional<Shop> found = repository.find(shop.getId());
+        Assertions.assertTrue(found.isPresent());
+        Assertions.assertTrue(found.get().getUserIds().contains(userId));
+    }
+
+    @Test
+    default void addUser_empty() {
+        ShopRepository repository = getRepository();
+        Assertions.assertThrows(MissingEntityException.class, () -> repository.addUser(UUID.randomUUID(), UUID.randomUUID()));
     }
 }

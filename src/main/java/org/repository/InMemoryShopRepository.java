@@ -3,7 +3,6 @@ package org.repository;
 import org.exception.MissingEntityException;
 import org.model.Shop;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,8 +30,4 @@ public class InMemoryShopRepository implements ShopRepository {
         shop.addUser(userId);
     }
 
-    @Override
-    public Collection<Shop> findAll() {
-        return table.values();
-    }
 }

@@ -2,9 +2,9 @@ package org.repository;
 
 import org.model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InMemoryUserRepository implements UserRepository {
@@ -16,7 +16,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<User> findAll() {
-        return table.values();
+    public Optional<User> find(UUID userId) {
+        return Optional.ofNullable(table.get(userId));
     }
 }
