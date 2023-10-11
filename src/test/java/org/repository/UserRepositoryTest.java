@@ -12,7 +12,7 @@ interface UserRepositoryTest {
     UserRepository getRepository();
 
     @Test
-    default void persistAndFind() {
+    default void persistAndFindAll() {
         User user = new User(UUID.randomUUID(), "name");
         UserRepository repository = getRepository();
         repository.persist(user);
@@ -22,7 +22,7 @@ interface UserRepositoryTest {
     }
 
     @Test
-    default void findEmpty() {
+    default void findAll_empty() {
         Collection<User> found = getRepository().findAll();
         Assertions.assertTrue(found.isEmpty());
     }

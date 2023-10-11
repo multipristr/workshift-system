@@ -5,6 +5,7 @@ import org.model.Shop;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InMemoryShopRepository implements ShopRepository {
@@ -13,6 +14,11 @@ public class InMemoryShopRepository implements ShopRepository {
     @Override
     public void persist(Shop shop) {
         table.put(shop.getId(), shop);
+    }
+
+    @Override
+    public Optional<Shop> find(UUID shopId) {
+        return Optional.ofNullable(table.get(shopId));
     }
 
     @Override

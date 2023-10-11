@@ -13,7 +13,7 @@ interface ShiftRepositoryTest {
     ShiftRepository getRepository();
 
     @Test
-    default void persistAndFind() {
+    default void persistAndFindAll() {
         Shift shift = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.now(), Instant.now());
         shift.addUser(UUID.randomUUID());
         ShiftRepository repository = getRepository();
@@ -24,7 +24,7 @@ interface ShiftRepositoryTest {
     }
 
     @Test
-    default void findEmpty() {
+    default void findAll_empty() {
         Collection<Shift> found = getRepository().findAll();
         Assertions.assertTrue(found.isEmpty());
     }

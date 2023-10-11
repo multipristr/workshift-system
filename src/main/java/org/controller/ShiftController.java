@@ -1,11 +1,14 @@
 package org.controller;
 
 import org.controller.request.ShiftRequests;
+import org.model.Shift;
 import org.service.ShiftService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("shifts")
@@ -17,6 +20,12 @@ public class ShiftController {
     }
 
     @PostMapping
-    public void createShift(@RequestBody ShiftRequests.Create request) {
+    public ResponseEntity<Object> createShift(@RequestBody ShiftRequests.Create request) {
+        Shift shift = service.createShift(request);
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{id}")
+                        .buildAndExpand(shift.getId())
+                        .toUri())
+                .build();
     }
 }
