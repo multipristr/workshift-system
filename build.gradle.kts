@@ -17,7 +17,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass.set("SpringBootMainClass")
+    mainClass.set("org.SpringBootMainClass")
 }
 
 tasks.getByName<Test>("test") {

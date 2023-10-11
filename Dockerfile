@@ -3,6 +3,7 @@ FROM openjdk:8-jdk-alpine3.9 AS build
 WORKDIR /home/gradle/src
 
 COPY . /home/gradle/src
+RUN chmod +x gradlew
 RUN --mount=type=cache,target=/root/.gradle ./gradlew clean build --parallel --configure-on-demand --watch-fs --no-daemon --no-build-cache --refresh-dependencies --configuration-cache
 
 FROM openjdk:8-jre-slim
