@@ -59,7 +59,7 @@ class ShiftControllerTest {
 
     @Test
     void addUserToShift() throws Exception {
-        Shift shift = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.MIN, Instant.MAX);
+        Shift shift = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.now().minusSeconds(9), Instant.now().plusSeconds(9));
         shiftRepository.persist(shift);
         mockMvc.perform(MockMvcRequestBuilders.put("/shifts/{shiftId}/user/{userId}", shift.getId(), UUID.randomUUID()))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
@@ -68,10 +68,10 @@ class ShiftControllerTest {
     @Test
     void addUserToShift_multipleAtSameTime() throws Exception {
         UUID userId = UUID.randomUUID();
-        Shift shift1 = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.MIN, Instant.MAX);
+        Shift shift1 = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.now().minusSeconds(9), Instant.now().plusSeconds(9));
         shift1.addUser(userId);
         shiftRepository.persist(shift1);
-        Shift shift2 = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.MIN, Instant.MAX);
+        Shift shift2 = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.now().minusSeconds(9), Instant.now().plusSeconds(9));
         shiftRepository.persist(shift2);
         mockMvc.perform(MockMvcRequestBuilders.put("/shifts/{shiftId}/user/{userId}", shift2.getId(), userId))
                 .andExpect(MockMvcResultMatchers.status().isConflict());
