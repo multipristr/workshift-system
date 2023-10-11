@@ -1,7 +1,9 @@
 package org.controller;
 
+import org.controller.request.ShiftRequests;
 import org.service.ShiftService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +17,6 @@ public class ShiftController {
     }
 
     @PostMapping
-    public void createShift() {
+    public void createShift(@RequestBody ShiftRequests.Create request) {
     }
 }

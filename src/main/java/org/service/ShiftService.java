@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 public class ShiftService {
     private final ShiftRepository repository;
 
-
     public ShiftService(ShiftRepository repository) {
         this.repository = repository;
     }
