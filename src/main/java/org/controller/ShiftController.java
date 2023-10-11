@@ -4,6 +4,7 @@ import org.controller.request.ShiftRequests;
 import org.model.Shift;
 import org.service.ShiftService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +34,7 @@ public class ShiftController {
     }
 
     @PutMapping("{shiftId}/user/{userId}")
-    public ResponseEntity<Object> addUserToShift(UUID shiftId, UUID userId) {
+    public ResponseEntity<Object> addUserToShift(@PathVariable UUID shiftId, @PathVariable UUID userId) {
         service.addUserToShift(shiftId, userId);
         return ResponseEntity.noContent().build();
     }

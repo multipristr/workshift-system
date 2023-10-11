@@ -4,8 +4,8 @@ plugins {
     id("io.spring.dependency-management") version "1.1.3"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "org.workshift"
+version = "1.0"
 
 repositories {
     mavenCentral()
