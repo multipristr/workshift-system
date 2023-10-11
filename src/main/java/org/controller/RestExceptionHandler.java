@@ -1,5 +1,6 @@
 package org.controller;
 
+import org.exception.InvalidStateException;
 import org.exception.LogicalValidationException;
 import org.exception.MissingEntityException;
 import org.springframework.http.HttpHeaders;
@@ -21,5 +22,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {MissingEntityException.class})
     protected ResponseEntity<Object> handleMissingEntity(MissingEntityException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(value = {InvalidStateException.class})
+    protected ResponseEntity<Object> handleInvalidState(InvalidStateException ex, WebRequest request) {
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 }
