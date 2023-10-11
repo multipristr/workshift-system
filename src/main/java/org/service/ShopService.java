@@ -20,4 +20,8 @@ public class ShopService {
         repository.persist(shop);
         return shop;
     }
+
+    public void addUserToShop(UUID shopId, UUID userId) {
+        repository.addUser(shopId, userId);
+    }
 }

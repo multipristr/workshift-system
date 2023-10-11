@@ -4,11 +4,15 @@ import org.controller.request.ShopRequests;
 import org.model.Shop;
 import org.service.ShopService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("shops")
@@ -27,5 +31,11 @@ public class ShopController {
                         .buildAndExpand(shop.getId())
                         .toUri())
                 .build();
+    }
+
+    @PutMapping("{shopId}/user/{userId}")
+    public ResponseEntity<Object> addUserToShop(@PathVariable UUID shopId, @PathVariable UUID userId) {
+        service.addUserToShop(shopId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

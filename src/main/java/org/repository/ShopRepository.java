@@ -11,5 +11,7 @@ public interface ShopRepository {
 
     Optional<Shop> find(UUID shopId);
 
+    void addUser(UUID shopId, UUID userId); // would be handled in junction table in SQL
+
     Collection<Shop> findAll();
 }

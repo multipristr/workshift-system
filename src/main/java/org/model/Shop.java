@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class Shop implements Serializable {
     private static final long serialVersionUID = -79572583456456869L;
-    private final Set<UUID> userIds = new HashSet<>();
+    private final Set<UUID> userIds = new HashSet<>(); // junction table
     private final UUID id;
     private String name;
 

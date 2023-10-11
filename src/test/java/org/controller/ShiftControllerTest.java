@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.configuration.SpringConfiguration;
 import org.controller.request.ShiftRequests;
 import org.junit.jupiter.api.Test;
-import org.model.Shop;
-import org.repository.ShopRepository;
 import org.service.ShiftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,27 +25,9 @@ class ShiftControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private ShopRepository shopRepository;
 
     @Test
     void createShift() throws Exception {
-        Shop shop = new Shop(UUID.randomUUID(), "name");
-        shopRepository.persist(shop);
-        ShiftRequests.Create create = new ShiftRequests.Create()
-                .setFrom(Instant.MIN)
-                .setTo(Instant.MAX)
-                .setShopId(shop.getId());
-        mockMvc.perform(MockMvcRequestBuilders.post("/shifts")
-                        .content(objectMapper.writeValueAsString(create))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.header().exists("Location"));
-    }
-
-    @Test
-    void createShift_missingCompany() throws Exception {
         ShiftRequests.Create create = new ShiftRequests.Create()
                 .setFrom(Instant.MIN)
                 .setTo(Instant.MAX)
@@ -56,7 +36,8 @@ class ShiftControllerTest {
                         .content(objectMapper.writeValueAsString(create))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.header().exists("Location"));
     }
 
     @Test

@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public class Shift implements Serializable {
     private static final long serialVersionUID = -7952534656869L;
-    private final Set<UUID> userIds = new HashSet<>();
+    private final Set<UUID> userIds = new HashSet<>(); // junction table
     private final UUID id;
-    private UUID shopId;
+    private UUID shopId; // foreign key
     private Instant from;
     private Instant to;
 
