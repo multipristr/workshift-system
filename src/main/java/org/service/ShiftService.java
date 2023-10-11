@@ -43,13 +43,6 @@ public class ShiftService {
         return shift;
     }
 
-    private static Optional<Shift> findShiftAtSameTimeInAnotherShop(Shift shift, List<Shift> userShifts) {
-        return userShifts.stream()
-                .filter(oldShift -> !oldShift.getShopId().equals(shift.getShopId()))
-                .filter(oldShift -> !oldShift.getTo().isBefore(shift.getFrom()) || !oldShift.getFrom().isAfter(shift.getTo()))
-                .findAny();
-    }
-
     public void addUserToShift(UUID shiftId, UUID userId) {
         Optional<Shift> found = repository.find(shiftId);
         if (!found.isPresent()) {
@@ -108,5 +101,12 @@ public class ShiftService {
                 })
                 .mapToLong(duration -> duration.toMillis() + 1) // +1 because duration end is exclusive
                 .sum();
+    }
+
+    private Optional<Shift> findShiftAtSameTimeInAnotherShop(Shift shift, List<Shift> userShifts) {
+        return userShifts.stream()
+                .filter(oldShift -> !oldShift.getShopId().equals(shift.getShopId()))
+                .filter(oldShift -> !oldShift.getTo().isBefore(shift.getFrom()) || !oldShift.getFrom().isAfter(shift.getTo()))
+                .findAny();
     }
 }

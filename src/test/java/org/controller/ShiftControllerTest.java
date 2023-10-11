@@ -33,8 +33,8 @@ class ShiftControllerTest {
     @Test
     void createShift() throws Exception {
         ShiftRequests.Create create = new ShiftRequests.Create()
-                .setFrom(Instant.MIN)
-                .setTo(Instant.MAX)
+                .setFrom(Instant.now().minusSeconds(9))
+                .setTo(Instant.now().plusSeconds(9))
                 .setShopId(UUID.randomUUID());
         mockMvc.perform(MockMvcRequestBuilders.post("/shifts")
                         .content(objectMapper.writeValueAsString(create))
@@ -47,8 +47,8 @@ class ShiftControllerTest {
     @Test
     void createShift_wrongTime() throws Exception {
         ShiftRequests.Create create = new ShiftRequests.Create()
-                .setTo(Instant.MIN)
-                .setFrom(Instant.MIN)
+                .setTo(Instant.now().minusSeconds(9))
+                .setFrom(Instant.now().plusSeconds(9))
                 .setShopId(UUID.randomUUID());
         mockMvc.perform(MockMvcRequestBuilders.post("/shifts")
                         .content(objectMapper.writeValueAsString(create))
