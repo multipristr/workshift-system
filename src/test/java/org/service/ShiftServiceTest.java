@@ -29,7 +29,7 @@ class ShiftServiceTest {
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
         Instant day3 = day2.plus(2, ChronoUnit.DAYS);
-        Instant day4 = day1.minus(3, ChronoUnit.DAYS);
+        Instant day4 = day3.plus(3, ChronoUnit.DAYS);
 
         Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1.minusSeconds(1), day1);
         repository.persist(shift1);
