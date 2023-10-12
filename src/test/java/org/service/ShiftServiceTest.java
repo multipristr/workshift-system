@@ -1,8 +1,5 @@
 package org.service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 import org.exception.InvalidStateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.model.Shift;
 import org.repository.InMemoryShiftRepository;
 import org.repository.ShiftRepository;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 class ShiftServiceTest {
     private ShiftRepository repository;
