@@ -85,21 +85,24 @@ class ShiftServiceTest {
         UUID userId = UUID.randomUUID();
         UUID shopId = UUID.randomUUID();
 
-        Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS);
-        Instant day1End = day1Start.plus(8, ChronoUnit.HOURS);
-        Instant day2Start = day1Start.plus(1, ChronoUnit.DAYS).plus(4, ChronoUnit.HOURS);
-        Instant day2End = day2Start.plus(8, ChronoUnit.HOURS);
+        Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(23, ChronoUnit.HOURS);
+        Instant day1End = day1Start.plus(4, ChronoUnit.HOURS);
+        Instant day2Start = day1End.plus(4, ChronoUnit.HOURS);
+        Instant day2End = day2Start.plus(4, ChronoUnit.HOURS);
 
         Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1Start, day1End);
         repository.persist(shift1);
         Shift shift2 = new Shift(UUID.randomUUID(), shopId, day2Start, day2End);
         repository.persist(shift2);
-        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day1End.minusMillis(2), day1End.minusMillis(1));
+        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day1End.plusMillis(1), day1End.plusMillis(2));
         repository.persist(shift3);
+        Shift shift4 = new Shift(UUID.randomUUID(), shopId, day2End.plusMillis(1), day2End.plusMillis(2));
+        repository.persist(shift4);
 
         service.addUserToShift(shift1.getId(), userId);
         service.addUserToShift(shift2.getId(), userId);
         Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift3.getId(), userId));
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift4.getId(), userId));
     }
 
     @Test
@@ -111,8 +114,8 @@ class ShiftServiceTest {
         Instant day1End = day1Start.plus(8, ChronoUnit.HOURS);
         Instant day2Start = day1Start.plus(1, ChronoUnit.DAYS).plus(4, ChronoUnit.HOURS);
         Instant day2End = day2Start.plus(2, ChronoUnit.HOURS);
-        Instant day2StartShift2 = day2End.minus(2, ChronoUnit.HOURS);
-        Instant day2EndShift2 = day2End.plus(2, ChronoUnit.HOURS);
+        Instant day2StartShift2 = day2End.minus(1, ChronoUnit.HOURS);
+        Instant day2EndShift2 = day2End.plus(1, ChronoUnit.HOURS);
 
         Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1Start, day1End);
         repository.persist(shift1);

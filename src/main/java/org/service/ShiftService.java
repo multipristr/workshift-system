@@ -63,7 +63,7 @@ public class ShiftService {
 
         // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
         long millisecondsWorkedInShopIn24Hours = countMillisecondsWorkedInShopIn24Hours(shift, userShiftsInFiveDays);
-        if (millisecondsWorkedInShopIn24Hours >= MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS) {
+        if (millisecondsWorkedInShopIn24Hours > MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
                     "' because the user has already worked in that shop more than " + MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS / 3600000 + " hour in the past 24 hours.");
         }
@@ -90,16 +90,21 @@ public class ShiftService {
     }
 
     private long countMillisecondsWorkedInShopIn24Hours(Shift shift, List<Shift> userShifts) {
-        Instant twentyFourHoursBefore = shift.getTo().minus(24, ChronoUnit.HOURS);
+        return countMillisecondsWorkedInShop(shift, userShifts, shift.getFrom(), shift.getFrom().plus(24, ChronoUnit.HOURS))
+                + countMillisecondsWorkedInShop(shift, userShifts, shift.getTo().minus(24, ChronoUnit.HOURS), shift.getTo())
+                + Duration.between(shift.getFrom(), shift.getTo()).toMillis();
+    }
+
+    private long countMillisecondsWorkedInShop(Shift shift, List<Shift> userShifts, Instant start, Instant end) {
         return userShifts.stream()
                 .filter(oldShift -> oldShift.getShopId().equals(shift.getShopId()))
-                .filter(oldShift -> !oldShift.getTo().isBefore(twentyFourHoursBefore) || !oldShift.getFrom().isAfter(shift.getTo()))
+                .filter(oldShift -> !oldShift.getTo().isBefore(start) && !oldShift.getFrom().isAfter(end))
                 .map(oldShift -> {
-                    Instant from = oldShift.getFrom().isAfter(twentyFourHoursBefore) ? oldShift.getFrom() : twentyFourHoursBefore;
-                    Instant to = oldShift.getTo().isAfter(shift.getTo()) ? shift.getTo() : oldShift.getTo();
+                    Instant from = oldShift.getFrom().isAfter(start) ? oldShift.getFrom() : start;
+                    Instant to = oldShift.getTo().isAfter(end) ? end : oldShift.getTo();
                     return Duration.between(from, to);
                 })
-                .mapToLong(duration -> duration.toMillis() + 1) // +1 because duration end is exclusive
+                .mapToLong(Duration::toMillis)
                 .sum();
     }
 
