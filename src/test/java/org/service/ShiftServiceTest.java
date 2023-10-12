@@ -22,15 +22,14 @@ class ShiftServiceTest {
     }
 
     @Test
-    void addUserToShift_moreThan5DaysInRow_2dayShifts() {
+    void addUserToShift_moreThan5DaysInRow_2dayShifts_before() {
         UUID userId = UUID.randomUUID();
         UUID shopId = UUID.randomUUID();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
         Instant day3 = day2.plus(2, ChronoUnit.DAYS);
-        Instant day0 = day1.minus(3, ChronoUnit.DAYS);
-        Instant day4 = day3.plus(3, ChronoUnit.DAYS);
+        Instant day4 = day1.minus(3, ChronoUnit.DAYS);
 
         Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1.minusSeconds(1), day1);
         repository.persist(shift1);
@@ -38,31 +37,73 @@ class ShiftServiceTest {
         repository.persist(shift2);
         Shift shift3 = new Shift(UUID.randomUUID(), shopId, day3.minusSeconds(1), day3);
         repository.persist(shift3);
-        Shift shift4 = new Shift(UUID.randomUUID(), shopId, day0.minusSeconds(1), day0);
+        Shift shift4 = new Shift(UUID.randomUUID(), shopId, day4.minusSeconds(1), day4);
         repository.persist(shift4);
-        Shift shift5 = new Shift(UUID.randomUUID(), shopId, day4.minusSeconds(1), day4);
-        repository.persist(shift5);
 
-        service.addUserToShift(shift1.getId(), userId);
         service.addUserToShift(shift2.getId(), userId);
-        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift3.getId(), userId));
+        service.addUserToShift(shift3.getId(), userId);
         service.addUserToShift(shift4.getId(), userId);
-        service.addUserToShift(shift5.getId(), userId);
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift1.getId(), userId));
     }
 
     @Test
-    void addUserToShift_moreThan5DaysInRow_1dayShifts() {
+    void addUserToShift_moreThan5DaysInRow_2dayShifts_between() {
         UUID userId = UUID.randomUUID();
         UUID shopId = UUID.randomUUID();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
+        Instant day3 = day2.plus(2, ChronoUnit.DAYS);
+
+        Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1.minusSeconds(1), day1);
+        repository.persist(shift1);
+        Shift shift2 = new Shift(UUID.randomUUID(), shopId, day2.minusSeconds(1), day2);
+        repository.persist(shift2);
+        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day3.minusSeconds(1), day3);
+        repository.persist(shift3);
+
+        service.addUserToShift(shift1.getId(), userId);
+        service.addUserToShift(shift3.getId(), userId);
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift2.getId(), userId));
+    }
+
+    @Test
+    void addUserToShift_moreThan5DaysInRow_2dayShifts_after() {
+        UUID userId = UUID.randomUUID();
+        UUID shopId = UUID.randomUUID();
+
+        Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Instant day0 = day1.minus(3, ChronoUnit.DAYS);
+        Instant day2 = day1.plus(2, ChronoUnit.DAYS);
+        Instant day3 = day2.plus(2, ChronoUnit.DAYS);
+
+        Shift shift0 = new Shift(UUID.randomUUID(), shopId, day0.minusSeconds(1), day0);
+        repository.persist(shift0);
+        Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1.minusSeconds(1), day1);
+        repository.persist(shift1);
+        Shift shift2 = new Shift(UUID.randomUUID(), shopId, day2.minusSeconds(1), day2);
+        repository.persist(shift2);
+        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day3.minusSeconds(1), day3);
+        repository.persist(shift3);
+
+        service.addUserToShift(shift0.getId(), userId);
+        service.addUserToShift(shift1.getId(), userId);
+        service.addUserToShift(shift2.getId(), userId);
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift3.getId(), userId));
+    }
+
+    @Test
+    void addUserToShift_moreThan5DaysInRow_1dayShifts_before() {
+        UUID userId = UUID.randomUUID();
+        UUID shopId = UUID.randomUUID();
+
+        Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Instant day2 = day1.plus(1, ChronoUnit.DAYS);
         Instant day3 = day2.plus(1, ChronoUnit.DAYS);
         Instant day4 = day3.plus(1, ChronoUnit.DAYS);
         Instant day5 = day4.plus(1, ChronoUnit.DAYS);
         Instant day6 = day5.plus(1, ChronoUnit.DAYS);
-        Instant day7 = day6.plus(1, ChronoUnit.DAYS);
-        Instant day8 = day7.plus(2, ChronoUnit.DAYS);
+        Instant day7 = day6.plus(2, ChronoUnit.DAYS);
 
         Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1, day1.plusSeconds(1));
         repository.persist(shift1);
@@ -78,8 +119,76 @@ class ShiftServiceTest {
         repository.persist(shift6);
         Shift shift7 = new Shift(UUID.randomUUID(), shopId, day7, day7.plusSeconds(1));
         repository.persist(shift7);
-        Shift shift8 = new Shift(UUID.randomUUID(), shopId, day8, day8.plusSeconds(1));
-        repository.persist(shift8);
+
+        service.addUserToShift(shift2.getId(), userId);
+        service.addUserToShift(shift3.getId(), userId);
+        service.addUserToShift(shift4.getId(), userId);
+        service.addUserToShift(shift5.getId(), userId);
+        service.addUserToShift(shift6.getId(), userId);
+        service.addUserToShift(shift7.getId(), userId);
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift1.getId(), userId));
+    }
+
+    @Test
+    void addUserToShift_moreThan5DaysInRow_1dayShifts_between() {
+        UUID userId = UUID.randomUUID();
+        UUID shopId = UUID.randomUUID();
+
+        Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Instant day2 = day1.plus(1, ChronoUnit.DAYS);
+        Instant day3 = day2.plus(1, ChronoUnit.DAYS);
+        Instant day4 = day3.plus(1, ChronoUnit.DAYS);
+        Instant day5 = day4.plus(1, ChronoUnit.DAYS);
+        Instant day6 = day5.plus(1, ChronoUnit.DAYS);
+
+        Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1, day1.plusSeconds(1));
+        repository.persist(shift1);
+        Shift shift2 = new Shift(UUID.randomUUID(), shopId, day2, day2.plusSeconds(1));
+        repository.persist(shift2);
+        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day3, day3.plusSeconds(1));
+        repository.persist(shift3);
+        Shift shift4 = new Shift(UUID.randomUUID(), shopId, day4, day4.plusSeconds(1));
+        repository.persist(shift4);
+        Shift shift5 = new Shift(UUID.randomUUID(), shopId, day5, day5.plusSeconds(1));
+        repository.persist(shift5);
+        Shift shift6 = new Shift(UUID.randomUUID(), shopId, day6, day6.plusSeconds(1));
+        repository.persist(shift6);
+
+        service.addUserToShift(shift1.getId(), userId);
+        service.addUserToShift(shift2.getId(), userId);
+        service.addUserToShift(shift3.getId(), userId);
+        service.addUserToShift(shift5.getId(), userId);
+        service.addUserToShift(shift6.getId(), userId);
+        Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift4.getId(), userId));
+    }
+
+    @Test
+    void addUserToShift_moreThan5DaysInRow_1dayShifts_after() {
+        UUID userId = UUID.randomUUID();
+        UUID shopId = UUID.randomUUID();
+
+        Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Instant day2 = day1.plus(2, ChronoUnit.DAYS);
+        Instant day3 = day2.plus(1, ChronoUnit.DAYS);
+        Instant day4 = day3.plus(1, ChronoUnit.DAYS);
+        Instant day5 = day4.plus(1, ChronoUnit.DAYS);
+        Instant day6 = day5.plus(1, ChronoUnit.DAYS);
+        Instant day7 = day6.plus(1, ChronoUnit.DAYS);
+
+        Shift shift1 = new Shift(UUID.randomUUID(), shopId, day1, day1.plusSeconds(1));
+        repository.persist(shift1);
+        Shift shift2 = new Shift(UUID.randomUUID(), shopId, day2, day2.plusSeconds(1));
+        repository.persist(shift2);
+        Shift shift3 = new Shift(UUID.randomUUID(), shopId, day3, day3.plusSeconds(1));
+        repository.persist(shift3);
+        Shift shift4 = new Shift(UUID.randomUUID(), shopId, day4, day4.plusSeconds(1));
+        repository.persist(shift4);
+        Shift shift5 = new Shift(UUID.randomUUID(), shopId, day5, day5.plusSeconds(1));
+        repository.persist(shift5);
+        Shift shift6 = new Shift(UUID.randomUUID(), shopId, day6, day6.plusSeconds(1));
+        repository.persist(shift6);
+        Shift shift7 = new Shift(UUID.randomUUID(), shopId, day7, day7.plusSeconds(1));
+        repository.persist(shift7);
 
         service.addUserToShift(shift1.getId(), userId);
         service.addUserToShift(shift2.getId(), userId);
@@ -88,7 +197,6 @@ class ShiftServiceTest {
         service.addUserToShift(shift5.getId(), userId);
         service.addUserToShift(shift6.getId(), userId);
         Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift7.getId(), userId));
-        service.addUserToShift(shift8.getId(), userId);
     }
 
     @Test

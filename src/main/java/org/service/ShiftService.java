@@ -49,12 +49,12 @@ public class ShiftService {
         }
         Shift shift = found.get();
 
-        Instant shiftFirstMoment5DaysAgo = shift.getTo().minus(5, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
-        Instant shiftLastMoment = shift.getTo().atOffset(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
-        List<Shift> userShiftsInFiveDays = repository.findUserShiftsBetween(userId, shiftFirstMoment5DaysAgo, shiftLastMoment);
+        Instant fiveDayWindowStart = shift.getTo().minus(5, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        Instant fiveDayWindowEnd = shift.getFrom().plus(5, ChronoUnit.DAYS).atOffset(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+        List<Shift> userShiftsInFiveDays = repository.findUserShiftsBetween(userId, fiveDayWindowStart, fiveDayWindowEnd);
 
         // No user can work more than 5 days in a row in the same shop
-        int daysWorkedInShopIn5Days = countDaysWorkedInRow(shift, userShiftsInFiveDays);
+        int daysWorkedInShopIn5Days = countDaysWorkedInRow(shift, userShiftsInFiveDays, fiveDayWindowStart, fiveDayWindowEnd);
         if (daysWorkedInShopIn5Days > MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
                     "' because the user has already worked in that shop more than " + MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS + " in a row.");
@@ -68,7 +68,7 @@ public class ShiftService {
         }
 
         // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
-        long millisecondsWorkedInShopIn24Hours = countMillisecondsWorkedInShopIn24Hours(shift, userId);
+        long millisecondsWorkedInShopIn24Hours = countMillisecondsWorkedInShopInPeriod(shift, userId, Duration.ofHours(24));
         if (millisecondsWorkedInShopIn24Hours > MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
                     "' because the user has already worked in that shop more than " + MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS / 3600000 + " hour in the past 24 hours.");
@@ -78,19 +78,33 @@ public class ShiftService {
         repository.persist(shift);
     }
 
-    private int countDaysWorkedInRow(Shift shift, List<Shift> userShifts) {
+    private int countDaysWorkedInRow(Shift shift, List<Shift> userShifts, Instant start, Instant end) {
         Set<LocalDate> daysWorkedInShopIn5Days = userShifts.stream()
+                .filter(oldShift -> oldShift.getShopId().equals(shift.getShopId()))
                 .map(oldShift -> Arrays.asList(oldShift.getFrom().atZone(ZoneOffset.UTC).toLocalDate(), oldShift.getTo().atZone(ZoneOffset.UTC).toLocalDate()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
         daysWorkedInShopIn5Days.add(shift.getFrom().atZone(ZoneOffset.UTC).toLocalDate());
         daysWorkedInShopIn5Days.add(shift.getTo().atZone(ZoneOffset.UTC).toLocalDate());
-        return daysWorkedInShopIn5Days.size();
+
+      LocalDate endDay = end.atZone(ZoneOffset.UTC).toLocalDate();
+      int longestDaysInRow = 0;
+      int daysInRow = 0;
+      for (LocalDate day = start.atZone(ZoneOffset.UTC).toLocalDate(); !day.isAfter(endDay); day = day.plusDays(1)) {
+        if (daysWorkedInShopIn5Days.contains(day)) {
+          ++daysInRow;
+        } else {
+          longestDaysInRow = Math.max(longestDaysInRow, daysInRow);
+          daysInRow = 0;
+        }
+      }
+      longestDaysInRow = Math.max(longestDaysInRow, daysInRow);
+      return longestDaysInRow;
     }
 
-    private long countMillisecondsWorkedInShopIn24Hours(Shift shift, UUID userId) {
-        Instant windowStart = shift.getTo().minus(24, ChronoUnit.HOURS);
-        Instant windowEnd = shift.getFrom().plus(24, ChronoUnit.HOURS);
+    private long countMillisecondsWorkedInShopInPeriod(Shift shift, UUID userId, Duration duration) {
+        Instant windowStart = shift.getTo().minus(duration);
+        Instant windowEnd = shift.getFrom().plus(duration);
         List<Shift> userShifts = repository.findUserShiftsBetween(userId, windowStart, windowEnd);
         return countMillisecondsWorkedInShop(shift, userShifts, shift.getFrom(), windowEnd) // shifts 24 hours after start
                 + countMillisecondsWorkedInShop(shift, userShifts, windowStart, shift.getTo()) // shifts 24 hours before end
