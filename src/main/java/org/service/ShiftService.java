@@ -1,13 +1,5 @@
 package org.service;
 
-import org.controller.request.ShiftRequests;
-import org.exception.InvalidStateException;
-import org.exception.LogicalValidationException;
-import org.exception.MissingEntityException;
-import org.model.Shift;
-import org.repository.ShiftRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,6 +13,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.controller.request.ShiftRequests;
+import org.exception.InvalidStateException;
+import org.exception.LogicalValidationException;
+import org.exception.MissingEntityException;
+import org.model.Shift;
+import org.repository.ShiftRepository;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ShiftService {
@@ -61,18 +60,18 @@ public class ShiftService {
                     "' because the user has already worked in that shop more than " + MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS + " in a row.");
         }
 
-        // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
-        long millisecondsWorkedInShopIn24Hours = countMillisecondsWorkedInShopIn24Hours(shift, userShiftsInFiveDays);
-        if (millisecondsWorkedInShopIn24Hours > MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS) {
-            throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
-                    "' because the user has already worked in that shop more than " + MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS / 3600000 + " hour in the past 24 hours.");
-        }
-
         // A user can not work in multiple shops at the same time
         Optional<Shift> shiftAtDifferentShopAtSameTime = findShiftAtSameTimeInAnotherShop(shift, userShiftsInFiveDays);
         if (shiftAtDifferentShopAtSameTime.isPresent()) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
-                    "' because the user already has shift at the same time in shop " + shiftAtDifferentShopAtSameTime.get().getShopId());
+                "' because the user already has shift at the same time in shop " + shiftAtDifferentShopAtSameTime.get().getShopId());
+        }
+
+        // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
+        long millisecondsWorkedInShopIn24Hours = countMillisecondsWorkedInShopIn24Hours(shift, userId);
+        if (millisecondsWorkedInShopIn24Hours > MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS) {
+            throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
+                    "' because the user has already worked in that shop more than " + MAX_WORK_MILLISECONDS_IN_PAST_24_HOURS / 3600000 + " hour in the past 24 hours.");
         }
 
         shift.addUser(userId);
@@ -89,9 +88,12 @@ public class ShiftService {
         return daysWorkedInShopIn5Days.size();
     }
 
-    private long countMillisecondsWorkedInShopIn24Hours(Shift shift, List<Shift> userShifts) {
-        return countMillisecondsWorkedInShop(shift, userShifts, shift.getFrom(), shift.getFrom().plus(24, ChronoUnit.HOURS))
-                + countMillisecondsWorkedInShop(shift, userShifts, shift.getTo().minus(24, ChronoUnit.HOURS), shift.getTo())
+    private long countMillisecondsWorkedInShopIn24Hours(Shift shift, UUID userId) {
+        Instant windowStart = shift.getTo().minus(24, ChronoUnit.HOURS);
+        Instant windowEnd = shift.getFrom().plus(24, ChronoUnit.HOURS);
+        List<Shift> userShifts = repository.findUserShiftsBetween(userId, windowStart, windowEnd);
+        return countMillisecondsWorkedInShop(shift, userShifts, shift.getFrom(), windowEnd) // shifts 24 hours after start
+                + countMillisecondsWorkedInShop(shift, userShifts, windowStart, shift.getTo()) // shifts 24 hours before end
                 + Duration.between(shift.getFrom(), shift.getTo()).toMillis();
     }
 
@@ -111,7 +113,8 @@ public class ShiftService {
     private Optional<Shift> findShiftAtSameTimeInAnotherShop(Shift shift, List<Shift> userShifts) {
         return userShifts.stream()
                 .filter(oldShift -> !oldShift.getShopId().equals(shift.getShopId()))
-                .filter(oldShift -> !oldShift.getTo().isBefore(shift.getFrom()) || !oldShift.getFrom().isAfter(shift.getTo()))
+                .filter(oldShift -> (!oldShift.getFrom().isAfter(shift.getFrom()) && !oldShift.getTo().isBefore(shift.getFrom())) // old shift before & during new shift
+                    || (!oldShift.getFrom().isAfter(shift.getTo()) && !oldShift.getTo().isBefore(shift.getTo()))) // old shift during & after new shift
                 .findAny();
     }
 }
