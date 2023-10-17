@@ -108,12 +108,12 @@ public class ShiftService {
     private Duration countWorkedInShopInPeriod(Shift shift, List<Shift> userShifts, Duration duration) {
         Instant windowStart = shift.getTo().minus(duration);
         Instant windowEnd = shift.getFrom().plus(duration);
-        return countMillisecondsWorkedInShop(shift, userShifts, shift.getFrom(), windowEnd) // shifts 24 hours after start
-                .plus(countMillisecondsWorkedInShop(shift, userShifts, windowStart, shift.getTo())) // shifts 24 hours before end
+        return countWorkedInShop(shift, userShifts, shift.getFrom(), windowEnd) // shifts 24 hours after start
+                .plus(countWorkedInShop(shift, userShifts, windowStart, shift.getTo())) // shifts 24 hours before end
                 .plus(Duration.between(shift.getFrom(), shift.getTo()));
     }
 
-    private Duration countMillisecondsWorkedInShop(Shift shift, List<Shift> userShifts, Instant start, Instant end) {
+    private Duration countWorkedInShop(Shift shift, List<Shift> userShifts, Instant start, Instant end) {
         return userShifts.stream()
                 .filter(oldShift -> oldShift.getShopId().equals(shift.getShopId()))
                 .filter(oldShift -> !oldShift.getTo().isBefore(start) && !oldShift.getFrom().isAfter(end))
