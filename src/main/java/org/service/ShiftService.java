@@ -63,7 +63,7 @@ public class ShiftService {
                     "' because the user has already worked in that shop more than " + MAX_DAYS_IN_SAME_SHOP_IN_PAST_5_DAYS + " in a row.");
         }
 
-        // No user is allowed to work in the same shop for more than 8 hours, within a 24 hour window
+        // No user is allowed to work in the same shop for more than 8 hours, within a 24-hour window
         Duration workedInShopIn24Hours = countWorkedInShopInPeriod(shift, userShiftsInFiveDays, Duration.ofHours(24));
         if (workedInShopIn24Hours.compareTo(MAX_WORKED_IN_PAST_24_HOURS) > 0) {
             throw new InvalidStateException("Cannot add user '" + userId + "' to shift '" + shiftId + "' at shop '" + shift.getShopId() +
