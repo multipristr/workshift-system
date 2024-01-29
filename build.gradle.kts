@@ -1,7 +1,7 @@
 plugins {
     java
-    id("org.springframework.boot") version "2.7.16"
-    id("io.spring.dependency-management") version "1.1.3"
+    id("org.springframework.boot") version "2.7.18"
+    id("io.spring.dependency-management") version "1.1.4"
 }
 
 group = "org.workshift"
@@ -14,6 +14,8 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.slf4j:jcl-over-slf4j:1.7.36")
+    implementation("org.slf4j:log4j-over-slf4j:1.7.36")
 }
 
 springBoot {
