@@ -21,4 +21,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3.5.0
       - name: Execute Gradle 'test' task
-        run: ./gradlew build
+        run: ./gradlew test
