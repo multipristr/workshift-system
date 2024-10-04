@@ -1,6 +1,6 @@
 # workshift-system
 
-![build](https://github.com/hamsatom-psql/workshift-system/actions/workflows/gradle.yml/badge.svg)
+![build](https://github.com/multipristr/workshift-system/actions/workflows/gradle.yml/badge.svg)
 
 ## A small RESTful backend for a workshift system
 
