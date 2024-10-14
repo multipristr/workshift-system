@@ -19,12 +19,10 @@ dependencies {
     implementation("org.slf4j:log4j-over-slf4j:1.7.36")
 }
 
-springBoot {
-    mainClass.set("org.SpringBootMainClass")
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+tasks {
+    test {                                  
+        useJUnitPlatform()
+    }
 }
 
 java {
