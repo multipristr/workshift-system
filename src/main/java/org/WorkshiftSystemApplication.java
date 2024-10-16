@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Import;
 })
 @Import(SpringConfiguration.class)
 @ComponentScan(basePackages = {"org.controller", "org.service", "org.repository"})
-public class SpringBootMainClass {
+public class WorkshiftSystemApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringBootMainClass.class, args);
+        SpringApplication.run(WorkshiftSystemApplication.class, args);
     }
 }

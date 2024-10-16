@@ -38,4 +38,4 @@ Swagger at [localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-
 ./gradlew build
 ```
 
-2. run Java application with main class [SpringBootMainClass](src/main/java/org/SpringBootMainClass.java)
+2. run Java application with main class [WorkshiftSystemApplication](src/main/java/org/WorkshiftSystemApplication.java)
