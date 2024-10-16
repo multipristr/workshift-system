@@ -24,7 +24,7 @@ The system should be able to:
 Clone and run the solution in Docker by executing
 
 ```shell
-git clone git@github.com:hamsatom-psql/workshift-system.git && docker build --tag workshift-system workshift-system/ && docker run -p 8080:8080 workshift-system
+git clone git@github.com:hamsatom-psql/workshift-system.git && docker image build --tag workshift-system workshift-system/ && docker run -p 8080:8080 workshift-system
 ```
 
 API's base url is [localhost:8080](http://localhost:8080)  
