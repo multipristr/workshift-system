@@ -5,11 +5,12 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -18,7 +19,6 @@ jobs:
         with:
           java-version: '8.0.442'
           distribution: 'zulu'
-          cache: 'gradle'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.3.0
       - name: Execute Gradle 'check' task
