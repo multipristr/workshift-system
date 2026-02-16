@@ -24,7 +24,7 @@ public class ShiftController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createShift(@RequestBody ShiftRequests.Create request) {
+    public ResponseEntity<Void> createShift(@RequestBody ShiftRequests.Create request) {
         Shift shift = service.createShift(request);
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -34,7 +34,7 @@ public class ShiftController {
     }
 
     @PutMapping("{shiftId}/user/{userId}")
-    public ResponseEntity<Object> addUserToShift(@PathVariable UUID shiftId, @PathVariable UUID userId) {
+    public ResponseEntity<Void> addUserToShift(@PathVariable UUID shiftId, @PathVariable UUID userId) {
         service.addUserToShift(shiftId, userId);
         return ResponseEntity.noContent().build();
     }

@@ -16,6 +16,7 @@ interface UserRepositoryTest {
         User user = new User(UUID.randomUUID(), "name");
         UserRepository repository = getRepository();
         repository.persist(user);
+
         Optional<User> found = repository.find(user.getId());
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(user, found.get());

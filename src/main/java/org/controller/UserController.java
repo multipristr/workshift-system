@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody UserRequests.Create request) {
+    public ResponseEntity<Void> createUser(@RequestBody UserRequests.Create request) {
         User user = service.createUser(request);
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
