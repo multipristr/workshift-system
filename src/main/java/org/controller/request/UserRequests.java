@@ -2,7 +2,7 @@ package org.controller.request;
 
 import java.io.Serializable;
 
-public class UserRequests {
+public final class UserRequests {
     private UserRequests() throws IllegalAccessException {
         throw new IllegalAccessException("Single instance protection");
     }

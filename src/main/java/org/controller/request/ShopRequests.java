@@ -2,7 +2,7 @@ package org.controller.request;
 
 import java.io.Serializable;
 
-public class ShopRequests {
+public final class ShopRequests {
     private ShopRequests() throws IllegalAccessException {
         throw new IllegalAccessException("Single instance protection");
     }

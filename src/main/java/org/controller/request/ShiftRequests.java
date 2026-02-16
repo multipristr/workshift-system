@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class ShiftRequests {
+public final class ShiftRequests {
     private ShiftRequests() throws IllegalAccessException {
         throw new IllegalAccessException("Single instance protection");
     }

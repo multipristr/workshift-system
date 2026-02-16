@@ -24,7 +24,7 @@ public class ShopController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createShop(@RequestBody ShopRequests.Create request) {
+    public ResponseEntity<Void> createShop(@RequestBody ShopRequests.Create request) {
         Shop shop = service.createShop(request);
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -34,7 +34,7 @@ public class ShopController {
     }
 
     @PutMapping("{shopId}/user/{userId}")
-    public ResponseEntity<Object> addUserToShop(@PathVariable UUID shopId, @PathVariable UUID userId) {
+    public ResponseEntity<Void> addUserToShop(@PathVariable UUID shopId, @PathVariable UUID userId) {
         service.addUserToShop(shopId, userId);
         return ResponseEntity.noContent().build();
     }
