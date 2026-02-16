@@ -19,6 +19,7 @@ interface ShiftRepositoryTest {
         shift.addUser(UUID.randomUUID());
         ShiftRepository repository = getRepository();
         repository.persist(shift);
+
         Optional<Shift> found = repository.find(shift.getId());
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(shift, found.get());
