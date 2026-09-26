@@ -18,7 +18,7 @@ interface ShiftRepositoryTest {
     @Test
     default void persistAndFind() {
         Shift shift = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop"), Instant.now(), Instant.now());
-        shift.getUsers().add(new User(UUID.randomUUID(), "testUser"));
+        shift.addUser(new User(UUID.randomUUID(), "testUser"));
         ShiftRepository repository = getRepository();
         repository.persist(shift);
 
