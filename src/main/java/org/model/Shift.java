@@ -75,4 +75,9 @@ public class Shift implements Serializable {
     public int hashCode() {
         return Objects.hash(users, id, shop, from, to);
     }
+
+    @Override
+    public String toString() {
+        return "Shift{id=" + id + '}';
+    }
 }

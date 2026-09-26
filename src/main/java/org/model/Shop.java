@@ -52,4 +52,9 @@ public class Shop implements Serializable {
     public int hashCode() {
         return Objects.hash(users, id, name);
     }
+
+    @Override
+    public String toString() {
+        return "Shop{id=" + id + ", name='" + name + '\'' + '}';
+    }
 }
