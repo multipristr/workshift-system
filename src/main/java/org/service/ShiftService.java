@@ -49,13 +49,12 @@ public class ShiftService {
 
         Shop shop = shopRepository.find(shiftCreate.getShopId()).orElseThrow(() -> new MissingEntityException("No shop with id " + shiftCreate.getShopId()));
         Shift shift = new Shift(UUID.randomUUID(), shop, shiftCreate.getFrom(), shiftCreate.getTo());
-        shiftRepository.persist(shift);
-        return shift;
+        return shiftRepository.persist(shift);
     }
 
     public void addUserToShift(UUID shiftId, UUID userId) {
         Shift shift = shiftRepository.find(shiftId).orElseThrow(() -> new MissingEntityException("No shift with id " + shiftId));
-        User user = userRepository.find(shiftId).orElseThrow(() -> new MissingEntityException("No user with id " + userId));
+        User user = userRepository.find(userId).orElseThrow(() -> new MissingEntityException("No user with id " + userId));
 
         Period fiveDays = Period.ofDays(5);
         Instant fiveDayWindowStart = shift.getTo().minus(fiveDays).truncatedTo(ChronoUnit.DAYS);

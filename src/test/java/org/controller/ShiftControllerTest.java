@@ -72,6 +72,20 @@ class ShiftControllerTest {
     }
 
     @Test
+    void createShift_missingShop() throws Exception {
+        ShiftRequests.Create create = new ShiftRequests.Create()
+                .setFrom(Instant.MIN)
+                .setTo(Instant.MAX)
+                .setShopId(UUID.randomUUID());
+        Mockito.when(service.createShift(Mockito.any())).thenThrow(MissingEntityException.class);
+        mockMvc.perform(MockMvcRequestBuilders.post("/shifts")
+                        .content(objectMapper.writeValueAsString(create))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
     void addUserToShift() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.put("/shifts/{shiftId}/user/{userId}", UUID.randomUUID(), UUID.randomUUID()))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());

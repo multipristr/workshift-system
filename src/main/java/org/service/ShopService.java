@@ -22,8 +22,7 @@ public class ShopService {
 
     public Shop createShop(ShopRequests.Create shopCreate) {
         Shop shop = new Shop(UUID.randomUUID(), shopCreate.getName());
-        shopRepository.persist(shop);
-        return shop;
+        return shopRepository.persist(shop);
     }
 
     public void addUserToShop(UUID shopId, UUID userId) {
