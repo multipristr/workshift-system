@@ -14,8 +14,9 @@ public class InMemoryShiftRepository implements ShiftRepository {
     private final Map<UUID, Shift> table = new HashMap<>();
 
     @Override
-    public void persist(Shift shift) {
+    public Shift persist(Shift shift) {
         table.put(shift.getId(), shift);
+        return shift;
     }
 
     @Override

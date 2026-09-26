@@ -11,8 +11,9 @@ public class InMemoryShopRepository implements ShopRepository {
     private final Map<UUID, Shop> table = new HashMap<>();
 
     @Override
-    public void persist(Shop shop) {
+    public Shop persist(Shop shop) {
         table.put(shop.getId(), shop);
+        return shop;
     }
 
     @Override

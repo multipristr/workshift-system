@@ -11,8 +11,9 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<UUID, User> table = new HashMap<>();
 
     @Override
-    public void persist(User user) {
+    public User persist(User user) {
         table.put(user.getId(), user);
+        return user;
     }
 
     @Override
