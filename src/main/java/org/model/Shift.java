@@ -10,15 +10,15 @@ import java.util.UUID;
 
 public class Shift implements Serializable {
     private static final long serialVersionUID = -7952534656869L;
-    private final Set<UUID> userIds = new HashSet<>(); // junction table
+    private final Set<User> users = new HashSet<>(); // junction table
     private final UUID id;
-    private UUID shopId; // foreign key
+    private Shop shop; // foreign key
     private Instant from;
     private Instant to;
 
-    public Shift(UUID id, UUID shopId, Instant from, Instant to) {
+    public Shift(UUID id, Shop shop, Instant from, Instant to) {
         this.id = id;
-        this.shopId = shopId;
+        this.shop = shop;
         this.from = from;
         this.to = to;
     }
@@ -27,12 +27,12 @@ public class Shift implements Serializable {
         return id;
     }
 
-    public UUID getShopId() {
-        return shopId;
+    public Shop getShop() {
+        return shop;
     }
 
-    public Shift setShopId(UUID shopId) {
-        this.shopId = shopId;
+    public Shift setShop(Shop shop) {
+        this.shop = shop;
         return this;
     }
 
@@ -54,13 +54,13 @@ public class Shift implements Serializable {
         return this;
     }
 
-    public Shift addUser(UUID userId) {
-        userIds.add(userId);
+    public Shift addUser(User user) {
+        users.add(user);
         return this;
     }
 
-    public Set<UUID> getUserIds() {
-        return userIds;
+    public Set<User> getUsers() {
+        return users;
     }
 
     @Override
@@ -68,11 +68,11 @@ public class Shift implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Shift shift = (Shift) o;
-        return Objects.equals(userIds, shift.userIds) && Objects.equals(id, shift.id) && Objects.equals(shopId, shift.shopId) && Objects.equals(from, shift.from) && Objects.equals(to, shift.to);
+        return Objects.equals(users, shift.users) && Objects.equals(id, shift.id) && Objects.equals(shop, shift.shop) && Objects.equals(from, shift.from) && Objects.equals(to, shift.to);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userIds, id, shopId, from, to);
+        return Objects.hash(users, id, shop, from, to);
     }
 }

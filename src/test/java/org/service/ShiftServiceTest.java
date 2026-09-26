@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.model.Shift;
 import org.repository.InMemoryShiftRepository;
+import org.repository.InMemoryShopRepository;
+import org.repository.InMemoryUserRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,7 +21,7 @@ class ShiftServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ShiftService(new InMemoryShiftRepository());
+        service = new ShiftService(new InMemoryShiftRepository(), new InMemoryShopRepository(), new InMemoryUserRepository());
     }
 
     @Test
@@ -31,10 +33,10 @@ class ShiftServiceTest {
         Shift model = service.createShift(request);
         Assertions.assertEquals(request.getFrom(), model.getFrom());
         Assertions.assertEquals(request.getTo(), model.getTo());
-        Assertions.assertEquals(request.getShopId(), model.getShopId());
+        Assertions.assertEquals(request.getShopId(), model.getShop());
         Assertions.assertNotNull(model.getId());
-        Assertions.assertNotNull(model.getUserIds());
-        Assertions.assertTrue(model.getUserIds().isEmpty());
+        Assertions.assertNotNull(model.getUsers());
+        Assertions.assertTrue(model.getUsers().isEmpty());
     }
 
     @Test

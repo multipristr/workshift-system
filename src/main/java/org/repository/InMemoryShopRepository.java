@@ -1,6 +1,5 @@
 package org.repository;
 
-import org.exception.MissingEntityException;
 import org.model.Shop;
 
 import java.util.HashMap;
@@ -19,15 +18,6 @@ public class InMemoryShopRepository implements ShopRepository {
     @Override
     public Optional<Shop> find(UUID shopId) {
         return Optional.ofNullable(table.get(shopId));
-    }
-
-    @Override
-    public void addUser(UUID shopId, UUID userId) {
-        Shop shop = table.get(shopId);
-        if (shop == null) {
-            throw new MissingEntityException("No shop with id " + shopId);
-        }
-        shop.addUser(userId);
     }
 
 }

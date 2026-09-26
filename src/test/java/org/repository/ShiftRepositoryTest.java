@@ -3,6 +3,8 @@ package org.repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.model.Shift;
+import org.model.Shop;
+import org.model.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,8 +17,8 @@ interface ShiftRepositoryTest {
 
     @Test
     default void persistAndFind() {
-        Shift shift = new Shift(UUID.randomUUID(), UUID.randomUUID(), Instant.now(), Instant.now());
-        shift.addUser(UUID.randomUUID());
+        Shift shift = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop"), Instant.now(), Instant.now());
+        shift.getUsers().add(new User(UUID.randomUUID(), "testUser"));
         ShiftRepository repository = getRepository();
         repository.persist(shift);
 
@@ -39,14 +41,14 @@ interface ShiftRepositoryTest {
         Instant timestamp4 = timestamp3.plusSeconds(50);
         Instant timestamp5 = timestamp4.plusSeconds(50);
         Instant timestamp6 = timestamp5.plusSeconds(50);
-        UUID userId = UUID.randomUUID();
+        User user = new User(UUID.randomUUID(), "testUser1");
 
-        Shift shift1 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp1, timestamp2).addUser(userId);
-        Shift shift2 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp2, timestamp3).addUser(userId);
-        Shift shift3 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4).addUser(userId);
-        Shift shift4 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp4, timestamp5).addUser(userId);
-        Shift shift5 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp5, timestamp6).addUser(userId);
-        Shift shift6 = new Shift(UUID.randomUUID(), UUID.randomUUID(), timestamp3, timestamp4).addUser(UUID.randomUUID());
+        Shift shift1 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop1"), timestamp1, timestamp2).addUser(user);
+        Shift shift2 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop2"), timestamp2, timestamp3).addUser(user);
+        Shift shift3 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop3"), timestamp3, timestamp4).addUser(user);
+        Shift shift4 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop4"), timestamp4, timestamp5).addUser(user);
+        Shift shift5 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop5"), timestamp5, timestamp6).addUser(user);
+        Shift shift6 = new Shift(UUID.randomUUID(), new Shop(UUID.randomUUID(), "testShop6"), timestamp3, timestamp4).addUser(new User(UUID.randomUUID(), "testUser2"));
 
         ShiftRepository repository = getRepository();
         repository.persist(shift1);
@@ -56,7 +58,7 @@ interface ShiftRepositoryTest {
         repository.persist(shift5);
         repository.persist(shift6);
 
-        List<Shift> userShiftsBetween = repository.findUserShiftsBetween(userId, timestamp3, timestamp4);
+        List<Shift> userShiftsBetween = repository.findUserShiftsBetween(user.getId(), timestamp3, timestamp4);
         Assertions.assertEquals(3, userShiftsBetween.size());
         Assertions.assertFalse(userShiftsBetween.contains(shift1));
         Assertions.assertTrue(userShiftsBetween.contains(shift2));

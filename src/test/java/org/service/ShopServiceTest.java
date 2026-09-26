@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.model.Shop;
 import org.repository.InMemoryShopRepository;
+import org.repository.InMemoryUserRepository;
 
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ class ShopServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ShopService(new InMemoryShopRepository());
+        service = new ShopService(new InMemoryShopRepository(), new InMemoryUserRepository());
     }
 
     @Test
@@ -24,8 +25,8 @@ class ShopServiceTest {
         Shop model = service.createShop(request);
         Assertions.assertEquals(request.getName(), model.getName());
         Assertions.assertNotNull(model.getId());
-        Assertions.assertNotNull(model.getUserIds());
-        Assertions.assertTrue(model.getUserIds().isEmpty());
+        Assertions.assertNotNull(model.getUsers());
+        Assertions.assertTrue(model.getUsers().isEmpty());
     }
 
     @Test

@@ -10,6 +10,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.model.Shift;
+import org.model.Shop;
 import org.service.ShiftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -44,7 +45,7 @@ class ShiftControllerTest {
         UUID id = UUID.randomUUID();
         Mockito.when(service.createShift(Mockito.any())).thenReturn(new Shift(
                 id,
-                create.getShopId(),
+                new Shop(create.getShopId(), "testShop"),
                 create.getFrom(),
                 create.getTo()
         ));
