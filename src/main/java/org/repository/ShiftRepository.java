@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ShiftRepository {
-    void persist(Shift shift);
+    Shift persist(Shift shift);
 
     Optional<Shift> find(UUID shiftId);
 

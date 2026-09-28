@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class Shop implements Serializable {
     private static final long serialVersionUID = -79572583456456869L;
-    private final Set<UUID> userIds = new HashSet<>(); // junction table
+    private final Set<User> users = new HashSet<>(); // junction table
     private final UUID id;
     private String name;
 
@@ -18,13 +18,13 @@ public class Shop implements Serializable {
         this.name = name;
     }
 
-    public Shop addUser(UUID userId) {
-        userIds.add(userId);
+    public Shop addUser(User user) {
+        users.add(user);
         return this;
     }
 
-    public Set<UUID> getUserIds() {
-        return userIds;
+    public Set<User> getUsers() {
+        return users;
     }
 
     public UUID getId() {
@@ -45,11 +45,16 @@ public class Shop implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Shop shop = (Shop) o;
-        return Objects.equals(userIds, shop.userIds) && Objects.equals(id, shop.id) && Objects.equals(name, shop.name);
+        return Objects.equals(users, shop.users) && Objects.equals(id, shop.id) && Objects.equals(name, shop.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userIds, id, name);
+        return Objects.hash(users, id, name);
+    }
+
+    @Override
+    public String toString() {
+        return "Shop{id=" + id + ", name='" + name + '\'' + '}';
     }
 }

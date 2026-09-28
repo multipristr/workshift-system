@@ -14,8 +14,9 @@ public class InMemoryShiftRepository implements ShiftRepository {
     private final Map<UUID, Shift> table = new HashMap<>();
 
     @Override
-    public void persist(Shift shift) {
+    public Shift persist(Shift shift) {
         table.put(shift.getId(), shift);
+        return shift;
     }
 
     @Override
@@ -26,7 +27,7 @@ public class InMemoryShiftRepository implements ShiftRepository {
     @Override
     public List<Shift> findUserShiftsBetween(UUID userId, Instant fromInclusive, Instant toInclusive) {
         return table.values().stream()
-                .filter(shift -> shift.getUserIds().contains(userId))
+                .filter(shift -> shift.getUsers().stream().anyMatch(user -> user.getId().equals(userId)))
                 .filter(shift -> !shift.getTo().isBefore(fromInclusive))
                 .filter(shift -> !shift.getFrom().isAfter(toInclusive))
                 .collect(Collectors.toList());

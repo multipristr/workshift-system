@@ -40,4 +40,9 @@ public class User implements Serializable {
     public int hashCode() {
         return Objects.hash(id, name);
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", name='" + name + '\'' + '}';
+    }
 }

@@ -8,7 +8,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.model.Shift;
+import org.model.Shop;
+import org.model.User;
 import org.repository.InMemoryShiftRepository;
+import org.repository.InMemoryShopRepository;
+import org.repository.InMemoryUserRepository;
+import org.repository.ShopRepository;
+import org.repository.UserRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -16,25 +22,30 @@ import java.util.UUID;
 
 class ShiftServiceTest {
     private ShiftService service;
+    private ShopRepository shopRepository;
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        service = new ShiftService(new InMemoryShiftRepository());
+        shopRepository = new InMemoryShopRepository();
+        userRepository = new InMemoryUserRepository();
+        service = new ShiftService(new InMemoryShiftRepository(), shopRepository, userRepository);
     }
 
     @Test
     void createShift() {
+        Shop shop = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop"));
         ShiftRequests.Create request = new ShiftRequests.Create()
                 .setFrom(Instant.now().minusSeconds(9))
                 .setTo(Instant.now().plusSeconds(9))
-                .setShopId(UUID.randomUUID());
+                .setShopId(shop.getId());
         Shift model = service.createShift(request);
         Assertions.assertEquals(request.getFrom(), model.getFrom());
         Assertions.assertEquals(request.getTo(), model.getTo());
-        Assertions.assertEquals(request.getShopId(), model.getShopId());
+        Assertions.assertEquals(request.getShopId(), model.getShop().getId());
         Assertions.assertNotNull(model.getId());
-        Assertions.assertNotNull(model.getUserIds());
-        Assertions.assertTrue(model.getUserIds().isEmpty());
+        Assertions.assertNotNull(model.getUsers());
+        Assertions.assertTrue(model.getUsers().isEmpty());
     }
 
     @Test
@@ -47,14 +58,32 @@ class ShiftServiceTest {
     }
 
     @Test
+    void createShift_missingShop() {
+        ShiftRequests.Create request = new ShiftRequests.Create()
+                .setFrom(Instant.MIN)
+                .setTo(Instant.MAX)
+                .setShopId(UUID.randomUUID());
+        Assertions.assertThrows(MissingEntityException.class, () -> service.createShift(request));
+    }
+
+    @Test
     void addUserToShift_missingShift() {
-        Assertions.assertThrows(MissingEntityException.class, () -> service.addUserToShift(UUID.randomUUID(), UUID.randomUUID()));
+        User user = userRepository.persist(new User(UUID.randomUUID(), "testUser"));
+        Assertions.assertThrows(MissingEntityException.class, () -> service.addUserToShift(UUID.randomUUID(), user.getId()));
+    }
+
+    @Test
+    void addUserToShift_missingUser() {
+        Shop shop = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop"));
+        Shift shift = service.createShift(new ShiftRequests.Create()
+                .setShopId(shop.getId()).setFrom(Instant.MIN).setTo(Instant.MAX));
+        Assertions.assertThrows(MissingEntityException.class, () -> service.addUserToShift(shift.getId(), UUID.randomUUID()));
     }
 
     @Test
     void addUserToShift_moreThan5DaysInRow_2dayShifts_before() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
@@ -78,8 +107,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan5DaysInRow_2dayShifts_between() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
@@ -99,8 +128,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan5DaysInRow_2dayShifts_after() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day0 = day1.minus(3, ChronoUnit.DAYS);
@@ -124,8 +153,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan5DaysInRow_1dayShifts_before() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(1, ChronoUnit.DAYS);
@@ -161,8 +190,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan5DaysInRow_1dayShifts_between() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(1, ChronoUnit.DAYS);
@@ -194,8 +223,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan5DaysInRow_1dayShifts_after() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1 = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day2 = day1.plus(2, ChronoUnit.DAYS);
@@ -231,8 +260,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan8HoursWithin24Hours_before() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(23, ChronoUnit.HOURS);
         Instant day1End = day1Start.plus(4, ChronoUnit.HOURS);
@@ -253,8 +282,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan8HoursWithin24Hours_during() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(23, ChronoUnit.HOURS);
         Instant day1End = day1Start.plus(4, ChronoUnit.HOURS);
@@ -275,8 +304,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan8HoursWithin24Hours_after() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(23, ChronoUnit.HOURS);
         Instant day1End = day1Start.plus(4, ChronoUnit.HOURS);
@@ -297,8 +326,8 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_moreThan8HoursWithin24Hours_overlappingShifts() {
-        UUID userId = UUID.randomUUID();
-        UUID shopId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+        UUID shopId = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop")).getId();
 
         Instant day1Start = Instant.now().truncatedTo(ChronoUnit.DAYS);
         Instant day1End = day1Start.plus(8, ChronoUnit.HOURS);
@@ -324,7 +353,11 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_multipleShiftsAtDifferentShopsAtSameTime_beforeAndDuring() {
-        UUID userId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+
+        Shop shop1 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop1"));
+        Shop shop2 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop2"));
+        Shop shop3 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop3"));
 
         Instant timestamp1 = Instant.now();
         Instant timestamp2 = timestamp1.plusSeconds(10);
@@ -332,11 +365,11 @@ class ShiftServiceTest {
         Instant timestamp4 = timestamp3.plusSeconds(10);
 
         Shift shift1 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp1).setTo(timestamp2));
+                .setShopId(shop1.getId()).setFrom(timestamp1).setTo(timestamp2));
         Shift shift2 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp2).setTo(timestamp3));
+                .setShopId(shop2.getId()).setFrom(timestamp2).setTo(timestamp3));
         Shift shift3 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp3).setTo(timestamp4));
+                .setShopId(shop3.getId()).setFrom(timestamp3).setTo(timestamp4));
 
         service.addUserToShift(shift3.getId(), userId);
         Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift2.getId(), userId));
@@ -345,7 +378,10 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_multipleShiftsAtDifferentShopsAtSameTime_within() {
-        UUID userId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+
+        Shop shop1 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop1"));
+        Shop shop2 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop2"));
 
         Instant timestamp1 = Instant.now();
         Instant timestamp2 = timestamp1.plusSeconds(10);
@@ -353,9 +389,9 @@ class ShiftServiceTest {
         Instant timestamp4 = timestamp2.minusSeconds(1);
 
         Shift shift1 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp1).setTo(timestamp2));
+                .setShopId(shop1.getId()).setFrom(timestamp1).setTo(timestamp2));
         Shift shift2 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp3).setTo(timestamp4));
+                .setShopId(shop2.getId()).setFrom(timestamp3).setTo(timestamp4));
 
         service.addUserToShift(shift1.getId(), userId);
         Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift2.getId(), userId));
@@ -363,7 +399,11 @@ class ShiftServiceTest {
 
     @Test
     void addUserToShift_multipleShiftsAtDifferentShopsAtSameTime_duringAndAfter() {
-        UUID userId = UUID.randomUUID();
+        UUID userId = userRepository.persist(new User(UUID.randomUUID(), "testUser")).getId();
+
+        Shop shop1 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop1"));
+        Shop shop2 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop2"));
+        Shop shop3 = shopRepository.persist(new Shop(UUID.randomUUID(), "testShop3"));
 
         Instant timestamp1 = Instant.now();
         Instant timestamp2 = timestamp1.plusSeconds(10);
@@ -371,11 +411,11 @@ class ShiftServiceTest {
         Instant timestamp4 = timestamp3.plusSeconds(10);
 
         Shift shift1 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp1).setTo(timestamp2));
+                .setShopId(shop1.getId()).setFrom(timestamp1).setTo(timestamp2));
         Shift shift2 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp2).setTo(timestamp3));
+                .setShopId(shop2.getId()).setFrom(timestamp2).setTo(timestamp3));
         Shift shift3 = service.createShift(new ShiftRequests.Create()
-                .setShopId(UUID.randomUUID()).setFrom(timestamp3).setTo(timestamp4));
+                .setShopId(shop3.getId()).setFrom(timestamp3).setTo(timestamp4));
 
         service.addUserToShift(shift1.getId(), userId);
         Assertions.assertThrows(InvalidStateException.class, () -> service.addUserToShift(shift2.getId(), userId));

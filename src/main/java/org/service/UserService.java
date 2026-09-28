@@ -17,7 +17,6 @@ public class UserService {
 
     public User createUser(UserRequests.Create userCreate) {
         User user = new User(UUID.randomUUID(), userCreate.getName());
-        repository.persist(user);
-        return user;
+        return repository.persist(user);
     }
 }
